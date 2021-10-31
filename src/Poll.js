@@ -22,6 +22,7 @@ function Poll(props) {
   const [zeroperctokens, setZeroperctokens] = useState()
   const [accountname, setAccountName] = useState()
   const [percsum, setPercsum] = useState(0)
+  const [poll, setPoll] = useState()
 
   const {
     ual: { showModal, hideModal, activeUser, login, logout },
@@ -60,6 +61,23 @@ function Poll(props) {
       }),
     }).then((response) =>
       response.json().then((res) => datamaker(res))
+    );
+
+    fetch("https://api.main.alohaeos.com:443/v1/chain/get_table_rows", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        json: true,
+        code: "consortiumlv",
+        table: "kysimuseds",
+        scope: "jnnl4eigkmwy",
+        limit: 1,
+      }),
+    }).then((response) =>
+      response.json().then((res) => setPoll(res))
     );
 
     const datamaker = async (props) => {
@@ -162,11 +180,15 @@ function Poll(props) {
   }
 
   const submitvote = async () => {
+    //TAKE POLL ARRAY AND FOR EACH ONE, FIND VALUE IN TOKENS AND THEN PUSH TO VOTES ARRAY
     const votes = []
-    tokens.rows.forEach((i)=>{
-      votes.push((Number(i.price_percentage)*10000).toFixed(0))
+    console.log(tokens)
+    
+    poll.rows[0].answers.forEach((i)=>{
+      const value = tokens.rows.find(x => x.minamount.split(" ")[1] == i.split(",")[1]).price_percentage
+      console.log(value)
+      votes.push((Number(value)*10000).toFixed(0))
     })
-    console.log(votes)
 
     if (activeUser) {
       try {
@@ -229,7 +251,8 @@ function Poll(props) {
             if(value.display == true){
             return <TextField 
             onChange={(event) => changeallocation(event, index)} 
-            id="outlined-basic" 
+            id="outlined-basic"
+            inputProps={{ maxLength: 4 }}
             label={value.minamount.split(" ")[1]}
             defaultValue={Number.parseFloat(value.price_percentage*100).toFixed(1)} variant="outlined" 
             InputProps={{
