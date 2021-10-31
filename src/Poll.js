@@ -76,44 +76,49 @@ function Poll(props) {
 
 
       const tokendata = props
-      await tokendata.rows.map((value,index)=>{
-        fetch("https://api.main.alohaeos.com:443/v1/chain/get_table_rows", {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            json: true,
-            code: "swap.defi",
-            table: "pairs",
-            scope: "swap.defi",
-            lower_bound: value.strpairid,
-            upper_bound: value.strpairid,
-            limit: 1,
-          }),
-        }).then((response) =>
-          response.json().then((price) => {
-            console.log(price)
-            if(price.rows[0].reserve0.split(" ")[1] == "EOS"){
-              tokendata.rows[index].price = price.rows[0].price0_last
-              tokendata.rows[index].price_quantity = Number(price.rows[0].price0_last) * Number(value.tokeninfund)
-            }
-            else{
-              tokendata.rows[index].price = price.rows[0].price1_last
-              tokendata.rows[index].price_quantity = Number(price.rows[0].price1_last) * Number(value.tokeninfund)
-            }
-          })
-        ).then(()=>{
-          const percentagesum = tokendata.rows.map(token => token.price_quantity).reduce((token1, token2) => Number(token1) + Number(token2));
-          console.log(percentagesum)
-          tokendata.rows.map((value,index)=>{
-            tokendata.rows[index].price_percentage = tokendata.rows[index].price_quantity / percentagesum
+      Promise.all(tokendata.rows.map((value,index)=>{
+        return new Promise((resolve) => {
+          fetch("https://api.main.alohaeos.com:443/v1/chain/get_table_rows", {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              json: true,
+              code: "swap.defi",
+              table: "pairs",
+              scope: "swap.defi",
+              lower_bound: value.strpairid,
+              upper_bound: value.strpairid,
+              limit: 1,
+            }),
+          }).then((response) =>
+            response.json().then((price) => {
+              console.log(price)
+              if(price.rows[0].reserve0.split(" ")[1] == "EOS"){
+                tokendata.rows[index].price = price.rows[0].price0_last
+                tokendata.rows[index].price_quantity = Number(price.rows[0].price0_last) * Number(value.tokeninfund)
+              }
+              else{
+                tokendata.rows[index].price = price.rows[0].price1_last
+                tokendata.rows[index].price_quantity = Number(price.rows[0].price1_last) * Number(value.tokeninfund)
+              }
+            })
+          ).then(()=>{
+            const percentagesum = tokendata.rows.map(token => token.price_quantity).reduce((token1, token2) => Number(token1) + Number(token2));
+            console.log(percentagesum)
+            tokendata.rows.map((value,index)=>{
+              tokendata.rows[index].price_percentage = tokendata.rows[index].price_quantity / percentagesum
+              resolve()
+            })
           })
         })
+      }
+      )
+      ).then(()=>{
+        setTokens({...tokendata})
       })
-      setTokens({...tokendata})
-      
       
 
       
