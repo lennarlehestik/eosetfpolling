@@ -1,0 +1,42 @@
+.poll{
+    width:50vw;
+    height:50vh;
+    background-color:white;
+    border-radius:10px;
+    color:black;
+    display:flex;
+    align-items:left;
+    justify-content:flex-start;
+    padding:20px;
+}
+
+.counter{
+    width:70px;
+    padding-top:5px;
+    padding-bottom:5px;
+    font-size:14px;
+    position:absolute;
+    top:-15px;
+    right:10px;
+    font-weight:600;
+}
+
+.wrapper {
+    width:100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    grid-auto-rows: minmax(50px, auto);
+    margin-top:15px;
+  }
+
+  .card{
+      width:50vw;
+      position:relative;
+  }
+
+  @media only screen and (max-width: 800px) {
+    .card{
+        width:90vw;
+    }
+  }
