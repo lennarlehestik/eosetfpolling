@@ -141,7 +141,7 @@ function Poll(props) {
 
   const changeallocation = (event, index) => {
     const tokencopy = tokens
-    tokencopy.rows[index].votepercentage = event.target.value
+    tokencopy.rows[index].price_percentage = event.target.value
     console.log(tokencopy)
     setTokens({...tokencopy})
 
@@ -164,7 +164,7 @@ function Poll(props) {
   const submitvote = async () => {
     const votes = []
     tokens.rows.forEach((i)=>{
-      votes.push((Number(i.votepercentage)*100).toFixed(0))
+      votes.push((Number(i.price_percentage)*10000).toFixed(0))
     })
     console.log(votes)
 
