@@ -13,6 +13,7 @@ import Paper from '@mui/material/Paper';
 import Divider from '@mui/material/Divider';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
+import Chart from './Chart'
 
 
 
@@ -21,7 +22,7 @@ function Poll(props) {
   const [tokens, setTokens] = useState()
   const [zeroperctokens, setZeroperctokens] = useState()
   const [accountname, setAccountName] = useState()
-  const [percsum, setPercsum] = useState(0)
+  const [percsum, setPercsum] = useState(100)
   const [poll, setPoll] = useState()
 
   const {
@@ -127,7 +128,8 @@ function Poll(props) {
             const percentagesum = tokendata.rows.map(token => token.price_quantity).reduce((token1, token2) => Number(token1) + Number(token2));
             console.log(percentagesum)
             tokendata.rows.map((value,index)=>{
-              tokendata.rows[index].price_percentage = tokendata.rows[index].price_quantity / percentagesum
+              tokendata.rows[index].price_percentage = (tokendata.rows[index].price_quantity / percentagesum) *100
+              tokendata.rows[index].tokensymbol = tokendata.rows[index].minamount.split(" ")[1]
               resolve()
             })
           })
@@ -139,11 +141,6 @@ function Poll(props) {
       })
       
 
-      
-
-      //SET SUM
-      const percentagesum = props.rows.map(token => token.votepercentage).reduce((token1, token2) => Number(token1) + Number(token2));
-      setPercsum(percentagesum)
       
       //CREATES OBJECT FOR DROPDOWN OF 0-PERCENTAGE TOKENS
       const zeroperctokens = []
@@ -164,7 +161,7 @@ function Poll(props) {
     setTokens({...tokencopy})
 
     //SET NEW SUM
-    const percentagesum = tokencopy.rows.map(token => token.votepercentage).reduce((token1, token2) => Number(token1) + Number(token2));
+    const percentagesum = tokencopy.rows.map(token => token.price_percentage).reduce((token1, token2) => Number(token1) + Number(token2));
     setPercsum(percentagesum)
   }
 
@@ -185,9 +182,9 @@ function Poll(props) {
     console.log(tokens)
     
     poll.rows[0].answers.forEach((i)=>{
-      const value = tokens.rows.find(x => x.minamount.split(" ")[1] == i.split(",")[1]).price_percentage
+      const value = tokens.rows.find(x => x.tokensymbol == i.split(",")[1]).price_percentage
       console.log(value)
-      votes.push((Number(value)*10000).toFixed(0))
+      votes.push((Number(value)*10).toFixed(0))
     })
 
     if (activeUser) {
@@ -240,6 +237,7 @@ function Poll(props) {
 
     <Card className="card" sx={{overflow:"visible"}}>
     <Paper elevation={3} className="counter">{percsum.toFixed(1)}%</Paper>
+    <Chart tokens={tokens}/>
       <CardContent>
         <Typography sx={{ mb: 1.5 }} color="text.secondary">
           Vote for EOSETF token allocations
@@ -254,7 +252,7 @@ function Poll(props) {
             id="outlined-basic"
             inputProps={{ maxLength: 4 }}
             label={value.minamount.split(" ")[1]}
-            defaultValue={Number.parseFloat(value.price_percentage*100).toFixed(1)} variant="outlined" 
+            defaultValue={Number.parseFloat(value.price_percentage).toFixed(1)} variant="outlined" 
             InputProps={{
               endAdornment: <InputAdornment position="end">%</InputAdornment>
             }}/>
