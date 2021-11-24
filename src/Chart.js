@@ -89,10 +89,10 @@ function Chart(props) {
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="tokensymbol" />
                         <YAxis />
-                        <Tooltip formatter={(value) => value.toFixed(1)}/>
+                        <Tooltip formatter={(value) => Number(value).toFixed(1)}/>
                         <Legend />
                         <Bar name="Vote" dataKey="price_percentage" fill="#1976D2" />
-                        <Bar name="Last reallocation" dataKey="votepercentage" fill="#1976AA" />
+                        <Bar name="Last reallocation" dataKey="votepercentage" fill="#d25d19" />
                     </BarChart>
                 </ResponsiveContainer>
                 </div>

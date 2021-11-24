@@ -14,7 +14,8 @@ import Divider from '@mui/material/Divider';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Chart from './Chart'
-
+import Swal from "sweetalert2";
+import Accordion from './Accordion'
 
 
 
@@ -24,6 +25,7 @@ function Poll(props) {
   const [accountname, setAccountName] = useState()
   const [percsum, setPercsum] = useState(100)
   const [poll, setPoll] = useState()
+  const [charttotal, setCharttotal] = useState()
 
   const {
     ual: { showModal, hideModal, activeUser, login, logout },
@@ -44,6 +46,60 @@ function Poll(props) {
     logout()
     setAccountName("")
   }
+
+  const votesuccess = () => {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "bottom-end",
+      showConfirmButton: false,
+      timer: 6000,
+      timerProgressBar: true,
+      onOpen: (toast) => {
+        toast.addEventListener("mouseenter", Swal.stopTimer);
+        toast.addEventListener("mouseleave", Swal.resumeTimer);
+      },
+    });
+    Toast.fire({
+      icon: "success",
+      title: "Vote successful!",
+    });
+  };
+
+  const rebalancesuccess = () => {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "bottom-end",
+      showConfirmButton: false,
+      timer: 6000,
+      timerProgressBar: true,
+      onOpen: (toast) => {
+        toast.addEventListener("mouseenter", Swal.stopTimer);
+        toast.addEventListener("mouseleave", Swal.resumeTimer);
+      },
+    });
+    Toast.fire({
+      icon: "success",
+      title: "Rebalance was succesful!",
+    });
+  };
+
+  const errorswal = (e) => {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "bottom-end",
+      showConfirmButton: false,
+      timer: 6000,
+      timerProgressBar: true,
+      onOpen: (toast) => {
+        toast.addEventListener("mouseenter", Swal.stopTimer);
+        toast.addEventListener("mouseleave", Swal.resumeTimer);
+      },
+    });
+    Toast.fire({
+      icon: "error",
+      title: e,
+    });
+  };
 
   useEffect(()=>{
     //FETCHES MAIN TABLE
@@ -114,8 +170,7 @@ function Poll(props) {
             }),
           }).then((response) =>
             response.json().then((price) => {
-              console.log(price)
-              if(price.rows[0].reserve0.split(" ")[1] == "EOS"){
+              if(price.rows[0].reserve0.split(" ")[1] !== "EOS"){
                 tokendata.rows[index].price = price.rows[0].price0_last
                 tokendata.rows[index].price_quantity = Number(price.rows[0].price0_last) * Number(value.tokeninfund)
               }
@@ -126,12 +181,45 @@ function Poll(props) {
             })
           ).then(()=>{
             const percentagesum = tokendata.rows.map(token => token.price_quantity).reduce((token1, token2) => Number(token1) + Number(token2));
-            console.log(percentagesum)
+            console.log("percentagesum: " + percentagesum)
             tokendata.rows.map((value,index)=>{
               tokendata.rows[index].price_percentage = (tokendata.rows[index].price_quantity / percentagesum) *100
+              console.log((tokendata.rows[index].price_quantity / percentagesum) *100)
               tokendata.rows[index].tokensymbol = tokendata.rows[index].minamount.split(" ")[1]
-              resolve()
             })
+            //VALUES FOR CHART
+            fetch("https://api.main.alohaeos.com:443/v1/chain/get_table_rows", {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                json: true,
+                code: "consortiumlv",
+                table: "kysimuseds",
+                scope: "jnnl4eigkmwy",
+                limit: 1,
+              }),
+            }).then((response) =>
+              response.json().then((res) => {
+                let charttotal = 0
+                const tokendata_chartbase = tokendata
+                res.rows[0].answers.forEach((value,index)=>{
+                  console.log(tokendata)
+                  const objIndex = tokendata.rows.findIndex((obj => obj.tokensymbol == value.split(",")[1]));
+                  console.log("OBJECT INDEX"+ objIndex)
+                  tokendata.rows[objIndex].chartvalue = res.rows[0].totalvote[index]
+                  charttotal+=res.rows[0].totalvote[index]
+                  tokendata_chartbase.rows[objIndex].chart_base = res.rows[0].totalvote[index]
+                })
+                setCharttotal(charttotal)
+                setTokens({...tokendata_chartbase})
+              })
+            );
+
+          }).then(()=>{
+            resolve()
           })
         })
       }
@@ -154,19 +242,70 @@ function Poll(props) {
     }
   },[])
 
+  const rebalance = async () => {
+    if (activeUser) {
+      try {
+        const transaction = {
+          actions: [
+            {
+              account: "consortiumtt",
+              name: "rebalance",
+              authorization: [
+                {
+                  actor: displayaccountname(), // use account that was logged in
+                  permission: "active",
+                },
+              ],
+              data: {
+                user: displayaccountname(),
+                pollkey: 69,
+                community: "jnnl4eigkmwy",
+              },
+            },
+          ],
+        };
+        // The activeUser.signTransaction will propose the passed in transaction to the logged in Authenticator
+        await activeUser.signTransaction(transaction, {
+          broadcast: true,
+          expireSeconds: 300,
+        });
+        rebalancesuccess()
+      } catch (error) {
+        errorswal(error)
+      }
+    } else {
+      showModal();
+    }
+  }
+
   const changeallocation = (event, index) => {
     const tokencopy = tokens
-    tokencopy.rows[index].price_percentage = event.target.value
+    console.log(tokencopy)
+    
+    tokencopy.rows[index].price_percentage = Number(event.target.value)
+    const totalchart = tokencopy.rows.reduce((prev, cur) => prev + cur.price_percentage, 0) + tokencopy.rows.reduce((prev, cur) => prev + cur.chart_base, 0);
+    console.log(totalchart)
+    tokencopy.rows[index].chart_value = (Number(event.target.value)*10 + Number(tokencopy.rows[index].chart_base))*10/totalchart
     console.log(tokencopy)
     setTokens({...tokencopy})
 
     //SET NEW SUM
     const percentagesum = tokencopy.rows.map(token => token.price_percentage).reduce((token1, token2) => Number(token1) + Number(token2));
     setPercsum(percentagesum)
+
+
+
+
+
+
+
+
+
+
+
   }
 
   const selectnewtoken = (e, value) => {
-    console.log(value)
     const tokenscopy = tokens
     tokens.rows.forEach((element, index) => {
       if(element.minamount.split(" ")[1] == value) {
@@ -180,10 +319,8 @@ function Poll(props) {
     //TAKE POLL ARRAY AND FOR EACH ONE, FIND VALUE IN TOKENS AND THEN PUSH TO VOTES ARRAY
     const votes = []
     console.log(tokens)
-    
     poll.rows[0].answers.forEach((i)=>{
       const value = tokens.rows.find(x => x.tokensymbol == i.split(",")[1]).price_percentage
-      console.log(value)
       votes.push((Number(value)*10).toFixed(0))
     })
 
@@ -213,9 +350,10 @@ function Poll(props) {
         await activeUser.signTransaction(transaction, {
           broadcast: true,
           expireSeconds: 300,
-        });
+        })
+        votesuccess()
       } catch (error) {
-        console.log(error.message);
+        errorswal(error)
       }
     } else {
       showModal();
@@ -224,7 +362,7 @@ function Poll(props) {
 
   return (
     <>
-    
+
     {accountname ?
     <Button sx={{position:"absolute", top:"10px", right:"10px"}} onClick={()=> logmeout()} variant="contained" startIcon={<LogoutIcon />}>
       {accountname}
@@ -236,12 +374,13 @@ function Poll(props) {
     }
 
     <Card className="card" sx={{overflow:"visible"}}>
-    <Paper elevation={3} className="counter">{percsum.toFixed(1)}%</Paper>
-    <Chart tokens={tokens}/>
+    <div class = "floatingmenu">
+      <Paper elevation={3} className="counter">Allocated: {percsum.toFixed(1)}%</Paper>
+      <Paper elevation={3} className="counter2">To allocate: {(100-percsum).toFixed(1)}%</Paper>
+      <Chart tokens={tokens}/>
+    </div>
       <CardContent>
-        <Typography sx={{ mb: 1.5 }} color="text.secondary">
-          Vote for EOSETF token allocations
-        </Typography>
+        <Accordion />
         <Divider />
         <div class="wrapper">
         {
@@ -272,6 +411,7 @@ function Poll(props) {
       :
       <></>}
       <Button sx={{ width: '100%', marginTop:2 }} onClick={()=>submitvote()}variant="contained">Vote</Button>
+      <Button sx={{ width: '100%', marginTop:2 }} onClick={()=>rebalance()} variant="contained">Rebalance</Button>
       </CardContent>
     </Card>
     </>
