@@ -25,6 +25,7 @@ function Poll(props) {
   const [accountname, setAccountName] = useState()
   const [percsum, setPercsum] = useState(100)
   const [poll, setPoll] = useState()
+  const [managers, setManagers] = useState()
   const [charttotal, setCharttotal] = useState()
 
   const {
@@ -131,10 +132,31 @@ function Poll(props) {
         code: "consortiumlv",
         table: "kysimuseds",
         scope: "jnnl4eigkmwy",
+        lower_bound: "69",
+        upper_bound: "69",
         limit: 1,
       }),
     }).then((response) =>
       response.json().then((res) => setPoll(res))
+    );
+
+    fetch("https://api.main.alohaeos.com:443/v1/chain/get_table_rows", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        json: true,
+        code: "consortiumlv",
+        table: "mngtab",
+        scope: "consortiumlv",
+        lower_bound: "jnnl4eigkmwy",
+        upper_bound: "jnnl4eigkmwy",
+        limit: 1,
+      }),
+    }).then((response) =>
+      response.json().then((res) => setManagers(res))
     );
 
     const datamaker = async (props) => {
@@ -184,6 +206,7 @@ function Poll(props) {
             console.log("percentagesum: " + percentagesum)
             tokendata.rows.map((value,index)=>{
               tokendata.rows[index].price_percentage = (tokendata.rows[index].price_quantity / percentagesum) *100
+              tokendata.rows[index].initial_price_percentage = (tokendata.rows[index].price_quantity / percentagesum) *100
               console.log((tokendata.rows[index].price_quantity / percentagesum) *100)
               tokendata.rows[index].tokensymbol = tokendata.rows[index].minamount.split(" ")[1]
             })
@@ -284,25 +307,26 @@ function Poll(props) {
     
     tokencopy.rows[index].price_percentage = Number(event.target.value)
     const totalchart = tokencopy.rows.reduce((prev, cur) => prev + cur.price_percentage, 0) + tokencopy.rows.reduce((prev, cur) => prev + cur.chart_base, 0);
-    console.log(totalchart)
     tokencopy.rows[index].chart_value = (Number(event.target.value)*10 + Number(tokencopy.rows[index].chart_base))*10/totalchart
     console.log(tokencopy)
+    setTokens({...tokencopy})
+
+    let sum = 0;
+    tokencopy.rows.forEach((value, ind) => {
+      if(index !== ind){
+      sum += 2* value.chartvalue;
+      }
+      else{
+        sum+= value.chartvalue + 10*Number(event.target.value)
+      }
+    });
+    console.log("SUM: "+sum)
+    tokencopy.rows[index].chart_display = (tokencopy.rows[index].chartvalue + Number(event.target.value)) / sum
     setTokens({...tokencopy})
 
     //SET NEW SUM
     const percentagesum = tokencopy.rows.map(token => token.price_percentage).reduce((token1, token2) => Number(token1) + Number(token2));
     setPercsum(percentagesum)
-
-
-
-
-
-
-
-
-
-
-
   }
 
   const selectnewtoken = (e, value) => {
@@ -375,8 +399,9 @@ function Poll(props) {
 
     <Card className="card" sx={{overflow:"visible"}}>
     <div class = "floatingmenu">
-      <Paper elevation={3} className="counter">Allocated: {percsum.toFixed(1)}%</Paper>
-      <Paper elevation={3} className="counter2">To allocate: {(100-percsum).toFixed(1)}%</Paper>
+    <Paper elevation={3} className="counter">Voted: <a style={{color:Number(poll?.rows[0].nrofvoters)/Number(managers?.rows[0].nrofmanagers) > 0.66666 ? "green" : "red"}}>{poll?.rows[0].nrofvoters + "/" + managers?.rows[0].nrofmanagers}</a></Paper>
+      <Paper elevation={3} className="counter">Allocated: <a style={{color: percsum.toFixed(1) > 100 ? "red" : percsum.toFixed(1) == 100 ? "green" : "black"}}>{percsum.toFixed(1)}%</a></Paper>
+      <Paper elevation={3} className="counter2">To allocate: <a style={{color: (100-percsum).toFixed(1) < 0 ? "red" : (100 - percsum).toFixed(1) == 0 ? "green" : "black"}}>{(100-percsum).toFixed(1)}%</a></Paper>
       <Chart tokens={tokens}/>
     </div>
       <CardContent>
@@ -387,7 +412,7 @@ function Poll(props) {
           tokens?.rows.map((value,index)=>{
             if(value.display == true){
             return <TextField 
-            onChange={(event) => changeallocation(event, index)} 
+            onChange={(event) => changeallocation(event, index)}
             id="outlined-basic"
             inputProps={{ maxLength: 4 }}
             label={value.minamount.split(" ")[1]}

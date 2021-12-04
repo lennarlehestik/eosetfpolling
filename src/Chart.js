@@ -13,7 +13,8 @@ function Chart(props) {
         top: false,
       });
     
-      const chartdata = props?.tokens?.rows
+      const chartdata = props?.tokens?.rows.filter((value,index)=>value.price_percentage != 0)
+      console.log(chartdata)
 
       const toggleDrawer = (anchor, open) => (event) => {
         setState({ ...state, [anchor]: open });
@@ -91,8 +92,8 @@ function Chart(props) {
                         <YAxis />
                         <Tooltip formatter={(value) => Number(value).toFixed(1)}/>
                         <Legend />
-                        <Bar name="Vote" dataKey="price_percentage" fill="#1976D2" />
-                        <Bar name="Last reallocation" dataKey="votepercentage" fill="#d25d19" />
+                        <Bar name="Your vote" dataKey="price_percentage" fill="#1976D2" />
+                        <Bar name="Current votes" dataKey="initial_price_percentage" fill="#d25d19" />
                     </BarChart>
                 </ResponsiveContainer>
                 </div>
