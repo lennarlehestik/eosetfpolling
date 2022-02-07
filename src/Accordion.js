@@ -20,8 +20,14 @@ function ExplainerAccordion(props) {
             </AccordionSummary>
 
             <AccordionDetails>
-            <Typography>
-                Add a paragraph or two that explain the concepts.
+            <Typography style={{textAlign:"left"}}>
+            <p>This is a voting module to manage EOSETF.</p>
+            <p>EOSETF fund managers are able to vote to choose which tokens should be in the fund and in which proportions.</p> 
+            <p>Each fund manager has 100 voting credits (100%) that he can distribute anyway he chooses. Precision is one decimal (eg. 10.5%).</p>
+            <p>After 2/3 fund managers have voted, rebalancing function can be triggered.</p>
+            <p>There is no limit on how many times and how often the fund can be rebalanced. Only criteria is to have 2/3 of managers voted.</p>
+            <p>By clicking on Chart, a chart is displayed that shows current allocation (%) of each token and how you’ve currently voted.</p>
+            <p>To have a token in the list of tokens that could be voted for, fund managers have to make a proposal to cet.f msiggers.</p>
             </Typography>
             </AccordionDetails>
         </Accordion>

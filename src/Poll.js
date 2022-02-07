@@ -192,13 +192,21 @@ function Poll(props) {
             }),
           }).then((response) =>
             response.json().then((price) => {
-              if(price.rows[0].reserve0.split(" ")[1] !== "EOS"){
-                tokendata.rows[index].price = price.rows[0].price0_last
-                tokendata.rows[index].price_quantity = Number(price.rows[0].price0_last) * Number(value.tokeninfund)
+              if(price?.rows[0]?.reserve0?.split(" ")[1] !== "EOS"){
+                tokendata.rows[index].price = price?.rows[0]?.price0_last
+                tokendata.rows[index].price_quantity = Number(price?.rows[0]?.price0_last) * Number(value.tokeninfund)
+                if(typeof(price?.rows[0]?.price0_last) == 'undefined'){
+                  tokendata.rows[index].price = 0
+                  tokendata.rows[index].price_quantity = 0
+                }
               }
               else{
                 tokendata.rows[index].price = price.rows[0].price1_last
-                tokendata.rows[index].price_quantity = Number(price.rows[0].price1_last) * Number(value.tokeninfund)
+                tokendata.rows[index].price_quantity = Number(price?.rows[0]?.price1_last) * Number(value.tokeninfund)
+                if(typeof(price?.rows[0]?.price0_last) == 'undefined'){
+                  tokendata.rows[index].price = 0
+                  tokendata.rows[index].price_quantity = 0
+                }
               }
             })
           ).then(()=>{

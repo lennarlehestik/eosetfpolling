@@ -93,7 +93,7 @@ function Chart(props) {
                         <Tooltip formatter={(value) => Number(value).toFixed(1)}/>
                         <Legend />
                         <Bar name="Your vote" dataKey="price_percentage" fill="#1976D2" />
-                        <Bar name="Current votes" dataKey="initial_price_percentage" fill="#d25d19" />
+                        <Bar name="Current allocation" dataKey="initial_price_percentage" fill="#d25d19" />
                     </BarChart>
                 </ResponsiveContainer>
                 </div>
