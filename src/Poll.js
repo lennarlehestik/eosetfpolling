@@ -145,8 +145,8 @@ function Poll(props) {
         code: "consortiumtt",
         table: "mngtab",
         scope: "consortiumtt",
-        lower_bound: "jnnl4eigkmwy",
-        upper_bound: "jnnl4eigkmwy",
+        lower_bound: "cetfcetfcetf",
+        upper_bound: "cetfcetfcetf",
         limit: 1,
       }),
     }).then((response) => response.json().then((res) => setManagers(res)));
@@ -425,15 +425,15 @@ function Poll(props) {
           {accountname}
         </Button>
       ) : (
-        <Button
-          sx={{ position: "absolute", top: "10px", right: "10px" }}
-          onClick={() => showModal()}
-          variant="contained"
-          startIcon={<LoginIcon />}
-        >
-          Log In
-        </Button>
-      )}
+          <Button
+            sx={{ position: "absolute", top: "10px", right: "10px" }}
+            onClick={() => showModal()}
+            variant="contained"
+            startIcon={<LoginIcon />}
+          >
+            Log In
+          </Button>
+        )}
 
       <Card className="card" sx={{ overflow: "visible" }}>
         <div class="floatingmenu">
@@ -444,7 +444,7 @@ function Poll(props) {
                 color:
                   Number(poll?.rows[0].nrofvoters) /
                     Number(managers?.rows[0].nrofmanagers) >
-                  0.66666
+                    0.66666
                     ? "green"
                     : "red",
               }}
@@ -460,8 +460,8 @@ function Poll(props) {
                   percsum.toFixed(1) > 100
                     ? "red"
                     : percsum.toFixed(1) == 100
-                    ? "green"
-                    : "black",
+                      ? "green"
+                      : "black",
               }}
             >
               {percsum.toFixed(1)}%
@@ -475,8 +475,8 @@ function Poll(props) {
                   (100 - percsum).toFixed(1) < 0
                     ? "red"
                     : (100 - percsum).toFixed(1) == 0
-                    ? "green"
-                    : "black",
+                      ? "green"
+                      : "black",
               }}
             >
               {(100 - percsum).toFixed(1)}%
@@ -522,8 +522,8 @@ function Poll(props) {
               onInputChange={selectnewtoken}
             />
           ) : (
-            <></>
-          )}
+              <></>
+            )}
           <Button
             sx={{ width: "100%", marginTop: 2 }}
             onClick={() => submitvote()}
