@@ -110,9 +110,9 @@ function Poll(props) {
       },
       body: JSON.stringify({
         json: true,
-        code: "cet.f",
+        code: "fundfundfund",
         table: "rebalon",
-        scope: "cet.f",
+        scope: "fundfundfund",
         limit: 100,
       }),
     }).then((response) => response.json().then((res) => datamaker(res)));
@@ -125,7 +125,7 @@ function Poll(props) {
       },
       body: JSON.stringify({
         json: true,
-        code: "cet.f",
+        code: "fundfundfund",
         table: "portfolios",
         scope: "cetfcetfcetf",
         lower_bound: "420",
@@ -142,9 +142,9 @@ function Poll(props) {
       },
       body: JSON.stringify({
         json: true,
-        code: "cet.f",
+        code: "fundfundfund",
         table: "mngtab",
-        scope: "cet.f",
+        scope: "fundfundfund",
         lower_bound: "cetfcetfcetf",
         upper_bound: "cetfcetfcetf",
         limit: 1,
@@ -235,7 +235,7 @@ function Poll(props) {
                     },
                     body: JSON.stringify({
                       json: true,
-                      code: "cet.f",
+                      code: "fundfundfund",
                       table: "portfolios",
                       scope: "cetfcetfcetf",
                       limit: 1,
@@ -291,7 +291,7 @@ function Poll(props) {
         const transaction = {
           actions: [
             {
-              account: "cet.f",
+              account: "fundfundfund",
               name: "rebalance",
               authorization: [
                 {
@@ -382,7 +382,7 @@ function Poll(props) {
         const transaction = {
           actions: [
             {
-              account: "cet.f",
+              account: "fundfundfund",
               name: "cetfvote",
               authorization: [
                 {
