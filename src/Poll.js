@@ -102,7 +102,7 @@ function Poll(props) {
 
   useEffect(() => {
     //FETCHES MAIN TABLE
-    fetch("https://api.main.alohaeos.com:443/v1/chain/get_table_rows", {
+    fetch("https://eos.eosusa.io:443/v1/chain/get_table_rows", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -117,7 +117,7 @@ function Poll(props) {
       }),
     }).then((response) => response.json().then((res) => datamaker(res)));
 
-    fetch("https://api.main.alohaeos.com:443/v1/chain/get_table_rows", {
+    fetch("https://eos.eosusa.io:443/v1/chain/get_table_rows", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -134,7 +134,7 @@ function Poll(props) {
       }),
     }).then((response) => response.json().then((res) => setPoll(res)));
 
-    fetch("https://api.main.alohaeos.com:443/v1/chain/get_table_rows", {
+    fetch("https://eos.eosusa.io:443/v1/chain/get_table_rows", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -166,7 +166,7 @@ function Poll(props) {
       Promise.all(
         tokendata.rows.map((value, index) => {
           return new Promise((resolve) => {
-            fetch("https://api.main.alohaeos.com:443/v1/chain/get_table_rows", {
+            fetch("https://eos.eosusa.io:443/v1/chain/get_table_rows", {
               method: "POST",
               headers: {
                 Accept: "application/json",
@@ -226,7 +226,7 @@ function Poll(props) {
                 });
                 //VALUES FOR CHART
                 fetch(
-                  "https://api.main.alohaeos.com:443/v1/chain/get_table_rows",
+                  "https://eos.eosusa.io:443/v1/chain/get_table_rows",
                   {
                     method: "POST",
                     headers: {
